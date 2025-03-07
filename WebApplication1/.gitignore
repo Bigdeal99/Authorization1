@@ -1,0 +1,32 @@
+# Ignore build outputs
+bin/
+obj/
+out/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.vs
+.vscode/
+.idea/
+
+# Ignore log files
+*.log
+
+# Ignore environment files
+.env
+
+# Ignore NuGet packages
+*.nupkg
+packages/
+
+# Ignore database files
+*.db
+*.sqlite
+
+# Ignore Docker-related files
+docker-compose.override.yml
+
+# Ignore Rider and JetBrains IDEs
+*.iml
+.idea/
