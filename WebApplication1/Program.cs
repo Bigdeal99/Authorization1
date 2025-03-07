@@ -152,4 +152,41 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Add role initialization
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        
+        // Create roles if they don't exist
+        await CreateRoles(roleManager);
+        
+        // Optionally seed some initial data
+        // await SeedData.Initialize(dbContext, userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while initializing roles.");
+    }
+}
+
 app.Run();
+
+// Role initialization method
+async Task CreateRoles(RoleManager<IdentityRole> roleManager)
+{
+    string[] roleNames = { "Editor", "Writer", "Subscriber", "Guest" };
+    
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+}

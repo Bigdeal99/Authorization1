@@ -14,15 +14,18 @@ namespace WebApplication1.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly TokenService _tokenService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AuthController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            TokenService tokenService)
+            TokenService tokenService,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _roleManager = roleManager;
         }
 
         [HttpPost("login")]
@@ -42,27 +45,51 @@ namespace WebApplication1.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegistrationDto registerDto)
         {
-            // Validate role
-            var validRoles = new[] { "Editor", "Writer", "Subscriber", "Guest" };
-            if (!validRoles.Contains(registerDto.Role))
+            // Validate the input
+            if (string.IsNullOrEmpty(registerDto.Username) || string.IsNullOrEmpty(registerDto.Password))
             {
-                return BadRequest("Invalid role specified");
+                return BadRequest("Username and password are required");
             }
 
+            // Normalize the role to proper case
+            string normalizedRole = NormalizeRoleName(registerDto.Role);
+            
+            // Check if role exists
+            if (!await _roleManager.RoleExistsAsync(normalizedRole))
+            {
+                return BadRequest($"Role '{registerDto.Role}' does not exist. Valid roles are: Editor, Writer, Subscriber, Guest.");
+            }
+            
             var user = new User
             {
                 UserName = registerDto.Username,
-                Role = registerDto.Role
+                Role = normalizedRole // Use the normalized role name
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-            if (!result.Succeeded) return BadRequest(result.Errors);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
 
-            // Add user to role
-            await _userManager.AddToRoleAsync(user, registerDto.Role);
+            // Assign role using the normalized role name
+            await _userManager.AddToRoleAsync(user, normalizedRole);
 
-            return Ok(new { token = _tokenService.CreateToken(user) });
+            return Ok(new { message = "User registered successfully" });
+        }
+
+        // Helper method to normalize role names
+        private string NormalizeRoleName(string roleName)
+        {
+            if (string.IsNullOrEmpty(roleName))
+                return "Guest"; // Default role
+            
+            // Convert to lowercase first
+            roleName = roleName.ToLower();
+            
+            // Then capitalize first letter
+            return char.ToUpper(roleName[0]) + roleName.Substring(1);
         }
     }
 }
