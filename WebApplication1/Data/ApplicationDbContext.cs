@@ -1,33 +1,26 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Models;
 
-public class ApplicationDbContext : IdentityDbContext<User>
+namespace WebApplication1.Data
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-
-    public DbSet<Article> Articles { get; set; }
-    public DbSet<Comment> Comments { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
-        base.OnModelCreating(modelBuilder);
-        
-        // Configure relationships
-        modelBuilder.Entity<Article>()
-            .HasOne(a => a.Author)
-            .WithMany(u => u.Articles)
-            .HasForeignKey(a => a.AuthorId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Comment>()
-            .HasOne(c => c.User)
-            .WithMany(u => u.Comments)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    
+        public DbSet<Article> Articles { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+    
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
             
-        // Fix UserId issue by mapping to AspNetUsers
-        modelBuilder.Entity<Article>()
-            .Property(a => a.AuthorId)
-            .HasColumnName("AuthorId");
+            // Configure relationships
+            modelBuilder.Entity<Article>()
+                .HasOne(a => a.Author)
+                .WithMany(u => u.Articles)
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

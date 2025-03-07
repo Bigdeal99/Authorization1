@@ -6,131 +6,136 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using WebApplication1.Models;  // Add this import
+using WebApplication1.Data;    // Add this import
 
-[Route("api/[controller]")]
-[ApiController]
-public class ArticlesController : ControllerBase
+namespace WebApplication1.Controllers  // Add namespace
 {
-    private readonly ApplicationDbContext _context;
-    private readonly Microsoft.AspNetCore.Authorization.IAuthorizationService _authService;
-
-    public ArticlesController(
-        ApplicationDbContext context, 
-        Microsoft.AspNetCore.Authorization.IAuthorizationService authService)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ArticlesController : ControllerBase
     {
-        _context = context;
-        _authService = authService;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly Microsoft.AspNetCore.Authorization.IAuthorizationService _authService;
 
-    // Everyone can read articles (no authorization)
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Article>>> GetArticles()
-    {
-        return await _context.Articles.ToListAsync();
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Article>> GetArticle(int id)
-    {
-        var article = await _context.Articles
-            .Include(a => a.Comments)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (article == null)
+        public ArticlesController(
+            ApplicationDbContext context, 
+            Microsoft.AspNetCore.Authorization.IAuthorizationService authService)
         {
-            return NotFound();
+            _context = context;
+            _authService = authService;
         }
 
-        return article;
-    }
-
-    // Only Writers and Editors can create articles
-    [Authorize(Roles = "Writer,Editor")]
-    [HttpPost]
-    public async Task<ActionResult<Article>> CreateArticle(Article article)
-    {
-        // Set the author ID to the current user
-        article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-        
-        _context.Articles.Add(article);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateArticle(int id, Article article)
-    {
-        if (id != article.Id)
+        // Everyone can read articles (no authorization)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Article>>> GetArticles()
         {
-            return BadRequest();
+            return await _context.Articles.ToListAsync();
         }
 
-        var existingArticle = await _context.Articles.FindAsync(id);
-        
-        if (existingArticle == null)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Article>> GetArticle(int id)
         {
-            return NotFound();
-        }
+            var article = await _context.Articles
+                .Include(a => a.Comments)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
-        // Check authorization
-        var requirement = new OperationAuthorizationRequirement { Name = ArticleOperations.Update };
-        var authResult = await _authService.AuthorizeAsync(User, existingArticle, requirement);
-
-        if (!authResult.Succeeded)
-        {
-            return Forbid();
-        }
-
-        // Update properties
-        existingArticle.Title = article.Title;
-        existingArticle.Content = article.Content;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ArticleExists(id))
+            if (article == null)
             {
                 return NotFound();
             }
-            else
+
+            return article;
+        }
+
+        // Only Writers and Editors can create articles
+        [Authorize(Roles = "Writer,Editor")]
+        [HttpPost]
+        public async Task<ActionResult<Article>> CreateArticle(Article article)
+        {
+            // Set the author ID to the current user
+            article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+            
+            _context.Articles.Add(article);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetArticle), new { id = article.Id }, article);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateArticle(int id, Article article)
+        {
+            if (id != article.Id)
             {
-                throw;
+                return BadRequest();
             }
+
+            var existingArticle = await _context.Articles.FindAsync(id);
+            
+            if (existingArticle == null)
+            {
+                return NotFound();
+            }
+
+            // Check authorization
+            var requirement = new OperationAuthorizationRequirement { Name = ArticleOperations.Update };
+            var authResult = await _authService.AuthorizeAsync(User, existingArticle, requirement);
+
+            if (!authResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            // Update properties
+            existingArticle.Title = article.Title;
+            existingArticle.Content = article.Content;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ArticleExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteArticle(int id)
-    {
-        var article = await _context.Articles.FindAsync(id);
-        if (article == null)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteArticle(int id)
         {
-            return NotFound();
+            var article = await _context.Articles.FindAsync(id);
+            if (article == null)
+            {
+                return NotFound();
+            }
+
+            // Check authorization
+            var requirement = new OperationAuthorizationRequirement { Name = ArticleOperations.Delete };
+            var authResult = await _authService.AuthorizeAsync(User, article, requirement);
+
+            if (!authResult.Succeeded)
+            {
+                return Forbid();
+            }
+
+            _context.Articles.Remove(article);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        // Check authorization
-        var requirement = new OperationAuthorizationRequirement { Name = ArticleOperations.Delete };
-        var authResult = await _authService.AuthorizeAsync(User, article, requirement);
-
-        if (!authResult.Succeeded)
+        private bool ArticleExists(int id)
         {
-            return Forbid();
+            return _context.Articles.Any(e => e.Id == id);
         }
-
-        _context.Articles.Remove(article);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    private bool ArticleExists(int id)
-    {
-        return _context.Articles.Any(e => e.Id == id);
     }
 }

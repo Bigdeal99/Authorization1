@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using WebApplication1.Data;           // Add this import
+using WebApplication1.Models;         // Add this import
+using WebApplication1.Services;       // Add this import
+using WebApplication1.Interfaces;     // Add this import
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,8 +143,7 @@ using (var scope = app.Services.CreateScope())
         // Ensure database is created
         context.Database.EnsureCreated();
         
-        // Add seed data if needed
-        // SeedData.Initialize(context, userManager, roleManager).Wait();
+       
     }
     catch (Exception ex)
     {

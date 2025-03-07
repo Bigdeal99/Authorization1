@@ -5,17 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApplication1.Models;
 
-public class Article
+namespace WebApplication1.Models
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = null!;
-    public string Content { get; set; } = null!;
+    public class Article
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string Content { get; set; } = null!;
+        
+        [ForeignKey("Author")]
+        public string AuthorId { get; set; } = null!;
+        public User Author { get; set; } = null!;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [ForeignKey("Author")]
-    public string AuthorId { get; set; } = null!;
-    public User Author { get; set; } = null!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public List<Comment>? Comments { get; set; }
+        public List<Comment>? Comments { get; set; }
+    }
 }
