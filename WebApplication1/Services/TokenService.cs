@@ -27,19 +27,19 @@ namespace WebApplication1.Services
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
-            // Get the key from configuration
+            
             var keyString = _config["JWT:Key"] ?? "defaultkeywhichmustbelongerthan64bytestoworkcorrectlywiththehmacshasignaturealgorithm123456!";
             
-            // Ensure key is long enough (at least 64 bytes for HMAC-SHA512)
+            
             if (Encoding.UTF8.GetByteCount(keyString) < 64)
             {
-                // Pad the key if it's too short
+                
                 keyString = keyString.PadRight(64, '_');
             }
             
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
 
-            // Use HMAC-SHA256 instead of SHA512 for more compatibility and less key length requirements
+            
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenOptions = new JwtSecurityToken(

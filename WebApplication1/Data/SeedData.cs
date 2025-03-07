@@ -15,7 +15,7 @@ namespace WebApplication1.Data
             UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager)
         {
-            // Create roles if they don't exist
+            
             string[] roleNames = { "Editor", "Writer", "Subscriber", "Guest" };
             foreach (var roleName in roleNames)
             {
@@ -25,10 +25,10 @@ namespace WebApplication1.Data
                 }
             }
             
-            // Create users if they don't exist
+            
             if (!userManager.Users.Any())
             {
-                // Create Editor
+                
                 var editor = new User
                 {
                     UserName = "editor@example.com",
@@ -38,7 +38,7 @@ namespace WebApplication1.Data
                 await userManager.CreateAsync(editor, "Password123!");
                 await userManager.AddToRoleAsync(editor, "Editor");
                 
-                // Create Writer
+                
                 var writer = new User
                 {
                     UserName = "writer@example.com",
@@ -48,7 +48,7 @@ namespace WebApplication1.Data
                 await userManager.CreateAsync(writer, "Password123!");
                 await userManager.AddToRoleAsync(writer, "Writer");
                 
-                // Create Subscriber
+                
                 var subscriber = new User
                 {
                     UserName = "subscriber@example.com",
@@ -58,7 +58,7 @@ namespace WebApplication1.Data
                 await userManager.CreateAsync(subscriber, "Password123!");
                 await userManager.AddToRoleAsync(subscriber, "Subscriber");
                 
-                // Create sample articles
+                
                 if (!context.Articles.Any())
                 {
                     context.Articles.AddRange(

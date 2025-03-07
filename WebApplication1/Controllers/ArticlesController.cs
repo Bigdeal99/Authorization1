@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using WebApplication1.Models;  // Add this import
-using WebApplication1.Data;    // Add this import
+using WebApplication1.DTOs; 
+using WebApplication1.Models;
+using WebApplication1.Data;
 
-namespace WebApplication1.Controllers  // Add namespace
+namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -49,13 +50,20 @@ namespace WebApplication1.Controllers  // Add namespace
         }
 
         // Only Writers and Editors can create articles
-        [Authorize(Roles = "Writer,Editor")]
         [HttpPost]
-        public async Task<ActionResult<Article>> CreateArticle(Article article)
+        [Authorize(Roles = "Editor,Writer")]
+        public async Task<ActionResult<Article>> CreateArticle(ArticleCreateDto articleDto)
         {
-            // Set the author ID to the current user
-            article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-            
+            // Create a new article with only the essential information
+            var article = new Article
+            {
+                Title = articleDto.Title,
+                Content = articleDto.Content,
+                // Set the current user as the author
+                AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty,
+                CreatedAt = DateTime.UtcNow
+            };
+
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
 
@@ -63,13 +71,8 @@ namespace WebApplication1.Controllers  // Add namespace
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateArticle(int id, Article article)
+        public async Task<IActionResult> UpdateArticle(int id, ArticleUpdateDto articleDto)
         {
-            if (id != article.Id)
-            {
-                return BadRequest();
-            }
-
             var existingArticle = await _context.Articles.FindAsync(id);
             
             if (existingArticle == null)
@@ -86,9 +89,11 @@ namespace WebApplication1.Controllers  // Add namespace
                 return Forbid();
             }
 
-            // Update properties
-            existingArticle.Title = article.Title;
-            existingArticle.Content = article.Content;
+            
+            existingArticle.Title = articleDto.Title;
+            existingArticle.Content = articleDto.Content;
+            
+            
 
             try
             {

@@ -30,7 +30,7 @@ namespace WebApplication1.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegistrationDto registerDto)
         {
-            // Update this line to include Editor
+            
             var validRoles = new[] { "Editor", "Writer", "Subscriber", "Guest" };
             if (!validRoles.Contains(registerDto.Role))
             {

@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using WebApplication1.Models;  
 using WebApplication1.Data;   
-
+using WebApplication1.DTOs;
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
@@ -40,18 +40,24 @@ namespace WebApplication1.Controllers
 
         [Authorize(Roles = "Subscriber,Writer,Editor")]
         [HttpPost]
-        public async Task<ActionResult<Comment>> AddComment(Comment comment)
+        public async Task<ActionResult<Comment>> AddComment(CommentCreateDto commentDto)
         {
-            // Set the user ID to the current user
-            comment.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
-            
             // Check if the article exists
-            var article = await _context.Articles.FindAsync(comment.ArticleId);
+            var article = await _context.Articles.FindAsync(commentDto.ArticleId);
             if (article == null)
             {
                 return BadRequest("Article not found");
             }
 
+            // Create the comment from the DTO
+            var comment = new Comment
+            {
+                Content = commentDto.Content,
+                ArticleId = commentDto.ArticleId,
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
+                CreatedAt = DateTime.UtcNow
+            };
+            
             // Check authorization
             var requirement = new OperationAuthorizationRequirement { Name = CommentOperations.Create };
             var authResult = await _authService.AuthorizeAsync(User, comment, requirement);
@@ -68,13 +74,8 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateComment(int id, Comment comment)
+        public async Task<IActionResult> UpdateComment(int id, CommentUpdateDto commentDto)
         {
-            if (id != comment.Id)
-            {
-                return BadRequest();
-            }
-
             var existingComment = await _context.Comments.FindAsync(id);
             
             if (existingComment == null)
@@ -91,9 +92,9 @@ namespace WebApplication1.Controllers
                 return Forbid();
             }
 
-            // Only update content
-            existingComment.Content = comment.Content;
-
+            // Update only the content
+            existingComment.Content = commentDto.Content;
+            
             try
             {
                 await _context.SaveChangesAsync();

@@ -63,7 +63,7 @@ namespace WebApplication1.Controllers
             var user = new User
             {
                 UserName = registerDto.Username,
-                Role = normalizedRole // Use the normalized role name
+                Role = normalizedRole 
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
