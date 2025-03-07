@@ -1,13 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "GZMfZH5y8u0=",
+  "dgSpecHash": "ysmf+AEuO1w=",
   "success": true,
   "projectFilePath": "D:\\EASV\\Authorization\\Authorization1\\WebApplication1\\WebApplication1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.2\\microsoft.aspnetcore.authentication.jwtbearer.9.0.2.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.authorization\\9.0.2\\microsoft.aspnetcore.authorization.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\9.0.2\\microsoft.aspnetcore.cryptography.internal.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\9.0.2\\microsoft.aspnetcore.cryptography.keyderivation.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\9.0.2\\microsoft.aspnetcore.identity.entityframeworkcore.9.0.2.nupkg.sha512",
+    "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.metadata\\9.0.2\\microsoft.aspnetcore.metadata.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.2\\microsoft.aspnetcore.openapi.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.2\\microsoft.data.sqlite.core.9.0.2.nupkg.sha512",
     "C:\\Users\\marce\\.nuget\\packages\\microsoft.entityframeworkcore\\9.0.2\\microsoft.entityframeworkcore.9.0.2.nupkg.sha512",

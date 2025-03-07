@@ -1,4 +1,4 @@
-public class AuthorizationService : IAuthorizationService
+public class AuthorizationService : ICustomAuthorizationService
 {
     public bool CanEditArticle(User user, Article article)
     {

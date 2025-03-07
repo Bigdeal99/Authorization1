@@ -1,14 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
-
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class Article
 {
     public int Id { get; set; }
     public string Title { get; set; } = null!;
     public string Content { get; set; } = null!;
-    public int AuthorId { get; set; }
+    
+    [ForeignKey("Author")]
+    public string AuthorId { get; set; } = null!;
     public User Author { get; set; } = null!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
