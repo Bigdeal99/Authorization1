@@ -4,22 +4,22 @@ using System.Threading.Tasks;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ArticlesController : ControllerBase
+public class CommentsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly IAuthorizationService _authService;
 
-    public ArticlesController(ApplicationDbContext context, IAuthorizationService authService)
+    public CommentsController(ApplicationDbContext context, IAuthorizationService authService)
     {
         _context = context;
         _authService = authService;
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateArticle(Article article)
+    public async Task<IActionResult> AddComment(Comment comment)
     {
-        _context.Articles.Add(article);
+        _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
-        return Ok(article);
+        return Ok(comment);
     }
 }
