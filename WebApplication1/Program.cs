@@ -32,7 +32,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 // Add JWT Authentication
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(options => 
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -42,10 +42,14 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-            builder.Configuration["JWT:Key"] ?? "DefaultSecretKeyWithAtLeast32Characters")),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"] ?? 
+            "defaultkeywhichmustbelongerthan64bytestoworkcorrectlywiththehmacshasignaturealgorithm123456!")),
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"] ?? "webapi",
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:Audience"] ?? "webclient",
+        ClockSkew = TimeSpan.Zero
     };
 });
 
